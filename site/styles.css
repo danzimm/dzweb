@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300;0,400;0,700;1,300&display=swap');
+
+:root {
+  --body-bg: #383b3c;
+  --body-color: #999999;
+  --link-color: #3291ba;
+  --link-color-hover: #c5b85b;
+  --link-color-visited: #89a97d;
+  --sep: 0.5rem;
+  --nav-sep: 2rem;
+  --nav-left-margin: 1rem;
+  --nav-top-margin: 3rem;
+  --nav-width: 2rem;
+}
+
+body {
+  background: var(--body-bg);
+  color: var(--body-color);
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-weight: 300;
+}
+
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  margin-left: var(--nav-left-margin);
+  margin-top: var(--nav-sep);
+  width: var(--nav-width);
+}
+
+nav ul li {
+  padding-top: calc(var(--nav-sep) / 4);
+  display: inline-block;
+}
+
+nav ul li svg {
+  float: right;
+  height: 2em;
+  fill: #ca656c70;
+}
+
+nav ul li.selected svg {
+  fill: #ca656c;
+}
+
+nav ul li svg:hover {
+  fill: #ff6c87;
+}
+
+nav ul li:first-child {
+  padding-top: 0;
+}
+
+main {
+  margin-left: calc(var(--nav-width) + 2.5 * var(--nav-left-margin));
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  font-style: italic;
+}
+
+a:visited {
+  color: var(--link-color-visited);
+}
+
+a:hover {
+  color: var(--link-color-hover);
+  font-style: normal;
+}
+
+main section h1 {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0px;
+  height: 1.414em;
+  margin: 0;
+  font-size: 2em;
+  font-weight: bold;
+  padding-top: var(--sep);
+  margin-top: var(--sep);
+  margin-bottom: var(--sep) / 2;
+  background: var(--body-bg);
+  background: linear-gradient(180deg, var(--body-bg) 0%, var(--body-bg) 70%, rgba(0,0,0,0) 100%);
+}
+
+.role:first-child h1 {
+  margin-top: 0;
+}
+
+main section h1 img, main section h1 span {
+  vertical-align: middle;
+  display: inline-block;
+}
+
+main section .desc {
+  margin-left: calc(3 * var(--sep));
+}
