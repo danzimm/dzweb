@@ -19,18 +19,43 @@ def ensure_parent(p):
 def is_webgen_attr(tag):
     return any(k.startswith("wg-") for k in tag.attrs.keys())
 
-def genhtml(inpath, outpath, templates, inroot):
-    print(f"= Processing {inpath}")
+class DepsMap:
+    def __init__(self):
+        self.template_to_files = {}
+        self.file_to_templates = {}
+
+    def __setitem__(self, file, templates):
+        if file in self.file_to_templates:
+            for template in self.file_to_templates[file]:
+                self.template_to_files[template].remove(file)
+
+        self.file_to_templates[file] = templates
+        for template in templates:
+            self.template_to_files.setdefault(template, set()).add(file)
+
+        print(f"  ++ {file} -> {templates}")
+
+    def getDepsOfTemplate(self, template):
+        return self.template_to_files.get(template, set())
+
+def genhtml(inpath, outpath, templates, inroot, deps_map):
+    rel = os.path.relpath(inpath, inroot)
+    print(f"= Processing {rel}")
     with open(inpath) as fp:
         soup = BeautifulSoup(fp, "html.parser")
+
+    deps = []
     for webgen in soup.find_all("webgen"):
         template_name = webgen.get("template")
         if template_name is None:
-            rel = os.path.relpath(inpath, inroot)
-            raise RuntimeError("{rel}: Unable to determine which template to use, please specify via `template` attribute")
+            warn("No template specified in {rel}, ignoring...")
+            continue
+
+        # Append the dep so we reload in case this template is created
+        deps.append(template_name)
         if template_name not in templates:
-            rel = os.path.relpath(inpath, inroot)
-            raise RuntimeError("{rel}: Unable to find template '{template_name}'!")
+            warn("No template named '{template_name}' in {rel}, ignoring...")
+            continue
         args = webgen.attrs
 
         template_soup = copy.copy(templates[template_name])
@@ -52,6 +77,8 @@ def genhtml(inpath, outpath, templates, inroot):
 
         webgen.replace_with(template_soup)
 
+    deps_map[rel] = deps
+
     ensure_parent(outpath)
     with open(outpath, "w") as fp:
         fp.write(soup.prettify())
@@ -66,13 +93,13 @@ def copyfile(src, dst, **kwargs):
     print(f"* Copying {src} -> {dst}")
     shutil.copyfile(src, dst, **kwargs)
 
-def process_file(filepath, dest_filepath, templates, in_dir):
+def process_file(filepath, dest_filepath, templates, in_dir, deps_map):
     if not os.path.exists(filepath):
         return
     if not filepath.endswith("html"):
         copyfile(filepath, dest_filepath)
     else:
-        genhtml(filepath, dest_filepath, templates, in_dir)
+        genhtml(filepath, dest_filepath, templates, in_dir, deps_map)
 
 def main(args):
     parser = argparse.ArgumentParser()
@@ -96,6 +123,8 @@ def main(args):
         for template in os.listdir(webgen_dir)
     }
 
+    deps_map = DepsMap()
+
     for root, dirs, files in os.walk(in_dir):
         if root == in_dir:
             if "webgen" in dirs:
@@ -104,34 +133,50 @@ def main(args):
             filepath = os.path.join(root, file)
             rel_filepath = os.path.relpath(filepath, in_dir)
             dest_filepath = os.path.join(out_dir, rel_filepath)
-            process_file(filepath, dest_filepath, templates, in_dir)
+            process_file(filepath, dest_filepath, templates, in_dir, deps_map)
 
     if parsed_args.listen:
         from watchdog import events as wd_events
         from watchdog.observers.fsevents import FSEventsObserver as Observer
 
         class WebGenEventHandler(wd_events.FileSystemEventHandler):
-            def __init__(self, in_dir, out_dir, templates):
+            def __init__(self, in_dir, out_dir, templates, deps_map):
                 self.in_dir = in_dir
                 self.webgen_dir = os.path.join(in_dir, "webgen")
                 self.out_dir = out_dir
                 self.templates = templates
+                self.deps_map = deps_map
 
             def dispatch(self, event):
                 if event.is_directory:
                     return
 
+                processed_deps = False
                 if os.path.commonpath([self.webgen_dir, event.src_path]) == self.webgen_dir:
-                    return
+                    if event.src_path.endswith(".html"):
+                        self.process_deps(event.src_path)
+                        processed_deps = True
 
                 if isinstance(event, wd_events.FileSystemMovedEvent):
                     if os.path.commonpath([self.webgen_dir, event.dest_path]) == self.webgen_dir:
-                        return
+                        if event.src_path.endswith(".html"):
+                            self.process_deps(event.dest_path)
+                            processed_deps = True
+
+                if processed_deps:
+                    return
 
                 try:
                     super().dispatch(event)
                 except Exception:
                     traceback.print_exc()
+
+            def process_deps(self, webgen_path):
+                template_path = os.path.relpath(webgen_path, self.webgen_dir)
+                template = os.path.splitext(template_path)[0]
+                print(f"= Updating Deps for {template}")
+                for dep in deps_map.getDepsOfTemplate(template):
+                    process_file(os.path.join(self.in_dir, dep), os.path.join(self.out_dir, dep), self.templates, self.in_dir, self.deps_map)
 
             def on_created(self, event):
                 #print(f"[Created] {event.src_path}")
@@ -168,9 +213,9 @@ def main(args):
                 if os.path.isdir(path):
                     return
                 rel = os.path.relpath(path, self.in_dir)
-                process_file(path, os.path.join(self.out_dir, rel), self.templates, self.in_dir)
+                process_file(path, os.path.join(self.out_dir, rel), self.templates, self.in_dir, self.deps_map)
 
-        event_handler = WebGenEventHandler(in_dir, out_dir, templates)
+        event_handler = WebGenEventHandler(in_dir, out_dir, templates, deps_map)
 
         observer = Observer()
         observer.schedule(event_handler, in_dir, recursive=True)
