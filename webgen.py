@@ -151,19 +151,19 @@ def main(args):
                 if event.is_directory:
                     return
 
-                processed_deps = False
+                processed_template = False
                 if os.path.commonpath([self.webgen_dir, event.src_path]) == self.webgen_dir:
                     if event.src_path.endswith(".html"):
-                        self.process_deps(event.src_path)
-                        processed_deps = True
+                        self.process_template(event.src_path)
+                        processed_template = True
 
                 if isinstance(event, wd_events.FileSystemMovedEvent):
                     if os.path.commonpath([self.webgen_dir, event.dest_path]) == self.webgen_dir:
                         if event.src_path.endswith(".html"):
-                            self.process_deps(event.dest_path)
-                            processed_deps = True
+                            self.process_template(event.dest_path)
+                            processed_template = True
 
-                if processed_deps:
+                if processed_template:
                     return
 
                 try:
@@ -171,9 +171,10 @@ def main(args):
                 except Exception:
                     traceback.print_exc()
 
-            def process_deps(self, webgen_path):
+            def process_template(self, webgen_path):
                 template_path = os.path.relpath(webgen_path, self.webgen_dir)
                 template = os.path.splitext(template_path)[0]
+                self.templates[template] = load_template(webgen_path)
                 print(f"= Updating Deps for {template}")
                 for dep in deps_map.getDepsOfTemplate(template):
                     process_file(os.path.join(self.in_dir, dep), os.path.join(self.out_dir, dep), self.templates, self.in_dir, self.deps_map)
