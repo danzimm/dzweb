@@ -14,10 +14,18 @@
   --nav-width: 2rem;
 }
 
+.logo-white {
+  fill: white;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     --body-bg: #f8f9f9;
     --body-color: #383b3c;
+  }
+
+  .logo-white {
+    fill: #383b3c;
   }
 }
 
@@ -188,11 +196,11 @@ main section h1 b {
   --element-color: #60d4c8;
 }
 
-main section h1 img {
+main section h1 object {
   height: 2rem;
 }
 
-#spotify h1 img, #snap h1 img {
+#spotify h1 object, #snap h1 object {
   height: 2.75rem;
 }
 
@@ -206,11 +214,6 @@ main p {
 
 .role:first-child h1 {
   margin-top: 0;
-}
-
-main section h1 img, main section h1 span {
-  vertical-align: middle;
-  display: inline-block;
 }
 
 main section .desc {
