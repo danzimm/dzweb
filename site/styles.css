@@ -158,6 +158,10 @@ main section h1 {
   color: #51b4a9;
 }
 
+main section h1 b {
+  color: #60d4c8;
+}
+
 main section h1 img {
   height: 2rem;
 }
