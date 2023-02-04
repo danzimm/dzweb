@@ -58,13 +58,20 @@ nav ul li a {
 
 nav ul li svg {
   height: 2rem;
-  fill: #ca656c70;
   padding: 0;
   vertical-align: middle;
   margin-right: 0.5rem;
 }
 
-nav ul li .nav-title {
+nav ul li svg:not(.strokeit) {
+  fill: #ca656c70;
+}
+
+nav ul li svg.strokeit {
+  stroke: #ca656c70;
+}
+
+nav ul li a span {
   display: none;
   vertical-align: middle;
   font-weight: 200;
@@ -74,8 +81,12 @@ nav ul li .nav-title {
   align-items: center;
 }
 
-nav ul li.selected svg {
+nav ul li.selected svg:not(.strokeit) {
   fill: #ca656c;
+}
+
+nav ul li.selected svg.strokeit {
+  stroke: #ca656c;
 }
 
 nav ul li.selected a {
@@ -95,11 +106,15 @@ nav ul li a:hover {
   background: var(--body-bg);
 }
 
-nav ul li a:hover svg {
+nav ul li a:hover svg:not(.strokeit) {
   fill: #ff6c87;
 }
 
-nav ul li a:hover .nav-title {
+nav ul li a:hover svg.strokeit {
+  stroke: #ff6c87;
+}
+
+nav ul li a:hover span {
   display: inline-flex;
 }
 
@@ -131,9 +146,9 @@ main section h1 {
   position: -webkit-sticky;
   position: sticky;
   top: 0px;
-  height: 1.414em;
   margin: 0;
-  font-size: 2em;
+  font-size: 2rem;
+  padding-bottom: 0.414em;
   font-weight: bold;
   padding-top: var(--sep);
   margin-top: var(--sep);
@@ -142,8 +157,20 @@ main section h1 {
   background: linear-gradient(180deg, var(--body-bg) 0%, var(--body-bg) 70%, rgba(0,0,0,0) 100%);
 }
 
+main section h1 img {
+  height: 2.5rem;
+}
+
+#spotify h1 img, #snap h1 img {
+  height: 3.5rem;
+}
+
 main {
   z-index: 1;
+}
+
+main p {
+  margin-bottom: 1rem;
 }
 
 .role:first-child h1 {
@@ -180,7 +207,7 @@ main section .desc {
     vertical-align: top;
   }
 
-  nav ul li .nav-title {
+  nav ul li a span {
     align-items: unset;
     padding-right: 0;
   }
@@ -189,19 +216,7 @@ main section .desc {
     margin-right: 0;
   }
 
-  nav ul li a:hover {
-    color: #ff6c87;
-    text-decoration: inherit;
-
-    box-shadow: 0rem 0rem 0.5rem 0.2rem #282828;
-    background: var(--body-bg);
-  }
-
-  nav ul li a:hover svg {
-    fill: #ff6c87;
-  }
-
-  nav ul li a:hover .nav-title {
+  nav ul li a:hover span {
     display: none;
   }
 
