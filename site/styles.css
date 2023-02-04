@@ -8,9 +8,14 @@
   --link-color-visited: #89a97d;
   --sep: 0.5rem;
   --nav-sep: 3rem;
-  --nav-left-margin: 1rem;
+  --nav-left-margin: 2rem;
+  --main-left-margin: 1.5rem;
   --nav-top-margin: 3rem;
   --nav-width: 2rem;
+}
+
+html {
+  background: var(--body-bg);
 }
 
 body {
@@ -19,6 +24,7 @@ body {
   font-family: 'Hanken Grotesk', sans-serif;
   font-weight: 300;
 }
+
 
 nav {
   position: fixed;
@@ -33,11 +39,6 @@ nav {
 nav ul li {
   margin-top: calc(var(--nav-sep) / 4);
   margin-bottom: calc(var(--nav-sep) / 4);
-
-  border-radius: 0.25rem;
-
-  height: 2em;
-  display: inline-flex;
 }
 
 nav ul li a {
@@ -51,8 +52,12 @@ nav ul li a {
   padding-right: calc(var(--nav-sep) / 8);
 }
 
+nav ul li a {
+  color: #ca656c70;
+}
+
 nav ul li svg {
-  height: 100%;
+  height: 2rem;
   fill: #ca656c70;
   padding: 0;
   vertical-align: middle;
@@ -73,21 +78,13 @@ nav ul li.selected svg {
   fill: #ca656c;
 }
 
-nav ul li a:visited {
-  color: inherit;
-  text-decoration: inherit;
-}
-
-nav ul li a {
-  color: #ca656c70;
-}
-
 nav ul li.selected a {
   color: #ca656c;
 }
 
-nav ul li a:hover svg {
-  fill: #ff6c87;
+nav ul li a:visited {
+  color: inherit;
+  text-decoration: inherit;
 }
 
 nav ul li a:hover {
@@ -96,6 +93,10 @@ nav ul li a:hover {
 
   box-shadow: 0rem 0rem 0.5rem 0.2rem #282828;
   background: var(--body-bg);
+}
+
+nav ul li a:hover svg {
+  fill: #ff6c87;
 }
 
 nav ul li a:hover .nav-title {
@@ -107,7 +108,7 @@ nav:hover ~ main:not(:hover) {
 }
 
 main {
-  margin-left: calc(var(--nav-width) + 2.5 * var(--nav-left-margin));
+  margin-left: calc(var(--nav-left-margin) + var(--nav-width) + var(--main-left-margin));
   transition: 0.1s filter linear;
 }
 
@@ -156,4 +157,60 @@ main section h1 img, main section h1 span {
 
 main section .desc {
   margin-left: calc(3 * var(--sep));
+}
+
+@media (max-width: 430px) {
+  nav {
+    top: 0;
+    position: relative;
+    width: 100vw;
+    margin: 0;
+    display: block;
+  }
+
+  nav ul {
+    position: relative;
+    text-align: center;
+    display: block;
+  }
+
+  nav ul li {
+    display: inline-block;
+    width: auto;
+    vertical-align: top;
+  }
+
+  nav ul li .nav-title {
+    align-items: unset;
+    padding-right: 0;
+  }
+
+  nav ul li svg {
+    margin-right: 0;
+  }
+
+  nav ul li a:hover {
+    color: #ff6c87;
+    text-decoration: inherit;
+
+    box-shadow: 0rem 0rem 0.5rem 0.2rem #282828;
+    background: var(--body-bg);
+  }
+
+  nav ul li a:hover svg {
+    fill: #ff6c87;
+  }
+
+  nav ul li a:hover .nav-title {
+    display: none;
+  }
+
+  nav:hover ~ main:not(:hover) {
+    filter: unset;
+  }
+
+  main {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
 }
