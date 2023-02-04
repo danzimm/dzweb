@@ -14,6 +14,13 @@
   --nav-width: 2rem;
 }
 
+@media (prefers-color-scheme: light) {
+  :root {
+    --body-bg: #f8f9f9;
+    --body-color: #383b3c;
+  }
+}
+
 html {
   background: var(--body-bg);
 }
@@ -21,8 +28,14 @@ html {
 body {
   background: var(--body-bg);
   color: var(--body-color);
+  --element-color: var(--body-color);
   font-family: 'Hanken Grotesk', sans-serif;
   font-weight: 300;
+}
+
+::selection {
+  background: var(--element-color);
+  color: var(--body-bg);
 }
 
 
@@ -54,6 +67,7 @@ nav ul li a {
 
 nav ul li a {
   color: #ca656c70;
+  --element-color: #ca656c70;
 }
 
 nav ul li svg {
@@ -91,6 +105,7 @@ nav ul li.selected svg.strokeit {
 
 nav ul li.selected a {
   color: #ca656c;
+  --element-color: #ca656c;
 }
 
 nav ul li a:visited {
@@ -100,6 +115,7 @@ nav ul li a:visited {
 
 nav ul li a:hover {
   color: #ff6c87;
+  --element-color: #ff6c87;
   text-decoration: inherit;
 
   box-shadow: 0rem 0rem 0.5rem 0.2rem #282828;
@@ -129,16 +145,24 @@ main {
 
 main a {
   color: var(--link-color);
+  --element-color: var(--link-color);
   text-decoration: none;
   font-style: italic;
 }
 
 main a:visited {
   color: var(--link-color-visited);
+  --element-color: var(--link-color-visited);
+}
+
+main a:visited::selection {
+  /* weird bug */
+  background: var(--link-color-visited);
 }
 
 main a:hover {
   color: var(--link-color-hover);
+  /*--element-color: var(--link-color-hover);*/
   font-style: normal;
 }
 
@@ -156,10 +180,12 @@ main section h1 {
   background: var(--body-bg);
   background: linear-gradient(180deg, var(--body-bg) 0%, var(--body-bg) 70%, rgba(0,0,0,0) 100%);
   color: #51b4a9;
+  --element-color: #51b4a9;
 }
 
 main section h1 b {
   color: #60d4c8;
+  --element-color: #60d4c8;
 }
 
 main section h1 img {
