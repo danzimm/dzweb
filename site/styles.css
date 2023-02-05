@@ -196,11 +196,11 @@ main section h1 b {
   --element-color: #60d4c8;
 }
 
-main section h1 object {
+main section h1 svg {
   height: 2rem;
 }
 
-#spotify h1 object, #snap h1 object {
+#spotify h1 svg, #snap h1 svg {
   height: 2.75rem;
 }
 
