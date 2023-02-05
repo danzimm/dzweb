@@ -9,6 +9,7 @@ import time
 import traceback
 
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 from http.server import test, SimpleHTTPRequestHandler
 
 def ensure_parent(p):
@@ -18,6 +19,10 @@ def ensure_parent(p):
 
 def is_webgen_attr(tag):
     return any(k.startswith("wg-") for k in tag.attrs.keys())
+
+def warn(*args, **kwargs):
+    kwargs.setdefault("file", sys.stderr)
+    print("W:", *args, **kwargs)
 
 class DepsMap:
     def __init__(self):
@@ -29,7 +34,7 @@ class DepsMap:
             for template in self.file_to_templates[file]:
                 self.template_to_files[template].remove(file)
 
-        self.file_to_templates[file] = templates
+        self.file_to_templates[file] = set(templates)
         for template in templates:
             self.template_to_files.setdefault(template, set()).add(file)
 
@@ -37,6 +42,12 @@ class DepsMap:
 
     def getDepsOfTemplate(self, template):
         return self.template_to_files.get(template, set())
+
+    def removeTemplate(self, template):
+        files = self.template_to_files.pop(template, set())
+        for file in files:
+            self.file_to_templates[file].remove(template)
+        return files
 
 def genhtml(inpath, outpath, templates, inroot, deps_map):
     rel = os.path.relpath(inpath, inroot)
@@ -48,13 +59,13 @@ def genhtml(inpath, outpath, templates, inroot, deps_map):
     for webgen in soup.find_all("webgen"):
         template_name = webgen.get("template")
         if template_name is None:
-            warn("No template specified in {rel}, ignoring...")
+            warn(f"No template specified in {rel}, ignoring...")
             continue
 
         # Append the dep so we reload in case this template is created
         deps.append(template_name)
         if template_name not in templates:
-            warn("No template named '{template_name}' in {rel}, ignoring...")
+            warn(f"No template named '{template_name}' in {rel}, ignoring...")
             continue
         args = webgen.attrs
 
@@ -86,7 +97,14 @@ def genhtml(inpath, outpath, templates, inroot, deps_map):
 
 def load_template(template_path):
     with open(template_path) as fp:
-        return BeautifulSoup(fp, "html.parser").contents[0]
+        print(f"+ Loading {os.path.splitext(os.path.basename(template_path))[0]}: ", end='')
+        bs = BeautifulSoup(fp, "html.parser")
+        res = next(content for content in bs.contents if isinstance(content, Tag) or isinstance(content, BeautifulSoup))
+        if res is not None:
+            print("Success")
+        else:
+            print("Failed, no tags :(")
+        return res
 
 def copyfile(src, dst, **kwargs):
     ensure_parent(dst)
@@ -122,6 +140,7 @@ def main(args):
         os.path.splitext(template)[0]: load_template(os.path.join(webgen_dir, template))
         for template in os.listdir(webgen_dir)
     }
+    templates = {k: v for k, v in templates.items() if v is not None}
 
     deps_map = DepsMap()
 
@@ -152,16 +171,18 @@ def main(args):
                     return
 
                 processed_template = False
-                if os.path.commonpath([self.webgen_dir, event.src_path]) == self.webgen_dir:
+                if isinstance(event, wd_events.FileSystemMovedEvent):
+                    if os.path.commonpath([self.webgen_dir, event.dest_path]) == self.webgen_dir:
+                        if event.dest_path.endswith(".html"):
+                            self.process_template(event.dest_path)
+                            processed_template = True
+                    if os.path.commonpath([self.webgen_dir, event.src_path]) == self.webgen_dir:
+                        if event.src_path.endswith(".html"):
+                            self.drop_template(event.src_path)
+                elif os.path.commonpath([self.webgen_dir, event.src_path]) == self.webgen_dir:
                     if event.src_path.endswith(".html"):
                         self.process_template(event.src_path)
                         processed_template = True
-
-                if isinstance(event, wd_events.FileSystemMovedEvent):
-                    if os.path.commonpath([self.webgen_dir, event.dest_path]) == self.webgen_dir:
-                        if event.src_path.endswith(".html"):
-                            self.process_template(event.dest_path)
-                            processed_template = True
 
                 if processed_template:
                     return
@@ -171,10 +192,19 @@ def main(args):
                 except Exception:
                     traceback.print_exc()
 
+            def drop_template(self, webgen_path):
+                template_path = os.path.relpath(webgen_path, self.webgen_dir)
+                template = os.path.splitext(template_path)[0]
+                print(f"= Updating Deps for {template}")
+                for dep in deps_map.removeTemplate(template):
+                    process_file(os.path.join(self.in_dir, dep), os.path.join(self.out_dir, dep), self.templates, self.in_dir, self.deps_map)
+
             def process_template(self, webgen_path):
                 template_path = os.path.relpath(webgen_path, self.webgen_dir)
                 template = os.path.splitext(template_path)[0]
-                self.templates[template] = load_template(webgen_path)
+                new_temp = load_template(webgen_path)
+                if new_temp is not None:
+                    self.templates[template] = new_temp
                 print(f"= Updating Deps for {template}")
                 for dep in deps_map.getDepsOfTemplate(template):
                     process_file(os.path.join(self.in_dir, dep), os.path.join(self.out_dir, dep), self.templates, self.in_dir, self.deps_map)
