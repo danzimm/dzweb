@@ -51,32 +51,68 @@ class DepsMap:
         return files
 
 class AutoReloader:
-    def __init__(self, enabled, port):
+    def __init__(self, enabled, port, deps_map):
         self.enabled = enabled
         self.port = port
+        self.deps_map = deps_map
 
     def didNavigate(self, navigated):
         pass
 
     def __call__(self, path):
+        if path.startswith("webgen/"):
+            current_url = self.getCurrentUrl()
+            base_url = f"http://127.0.0.1:{self.port}"
+            if not current_url.startswith(base_url):
+                return
+            current_url_path = current_url[len(base_url):]
+            if current_url_path.startswith("/"):
+                current_url_path = current_url_path[1:]
+            if current_url_path.endswith("/"):
+                current_url_path = current_url_path + "index.html"
+            template_path = path[len("webgen/"):]
+            template = os.path.splitext(template_path)[0]
+            if current_url_path in self.deps_map.getDepsOfTemplate(template):
+                self.reload()
+            return
+
         if path[0] != "/":
             path = "/" + path
         head, tail = os.path.split(path)
         if tail == "index.html":
             self.open(head)
         else:
-            pass
+            _, ext = os.path.splitext(tail)
+            if ext[1:] in ("svg", "css", "ico"):
+                self.reload()
 
     def open(self, url_path):
-        try:
-            script = f"""tell application "Safari"
+        self.runAppleScript(f"""tell application "Safari"
 set docURL to "http://127.0.0.1:{self.port}{url_path}"
 set URL of document 1 to docURL
 end tell
-"""
-            subprocess.run(["osascript", "-e", script], check=True)
+""")
+
+    def reload(self):
+        self.runAppleScript("""tell application "Safari"
+set docUrl to URL of document 1
+set URL of document 1 to docURL
+end tell""")
+
+    def getCurrentUrl(self):
+        return self.runAppleScript("""on run
+  tell application "Safari"
+    return URL of document 1
+  end tell
+end run""", return_stdout=True).strip()
+
+    def runAppleScript(self, script, return_stdout=False):
+        try:
+            cp = subprocess.run(["osascript", "-e", script], check=True, capture_output=return_stdout, text=True if return_stdout else None)
+            if return_stdout:
+                return cp.stdout
         except subprocess.CalledProcessError as exc:
-            warn(f"Failed to reload webpage: {exc}")
+            warn(f"Failed to run {script}: {exc}")
 
 def genhtml(inpath, outpath, templates, inroot, deps_map):
     rel = os.path.relpath(inpath, inroot)
@@ -188,7 +224,7 @@ def main(args):
         from watchdog import events as wd_events
         from watchdog.observers.fsevents import FSEventsObserver as Observer
 
-        autoreloader = AutoReloader(parsed_args.autoreload, parsed_args.port)
+        autoreloader = AutoReloader(parsed_args.autoreload, parsed_args.port, deps_map)
 
         class WebGenEventHandler(wd_events.FileSystemEventHandler):
             def __init__(self, in_dir, out_dir, templates, deps_map):
