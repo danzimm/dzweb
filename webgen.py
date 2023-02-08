@@ -125,23 +125,17 @@ end run""", return_stdout=True).strip()
         except subprocess.CalledProcessError as exc:
             warn(f"Failed to run {script}: {exc}")
 
-def genhtml(inpath, outpath, templates, inroot, deps_map):
-    rel = os.path.relpath(inpath, inroot)
-    print(f"= Processing {rel}")
-    with open(inpath) as fp:
-        soup = BeautifulSoup(fp, "html.parser")
-
-    deps = []
+def inflate_webgen(soup, deps, templates, relpath):
     for webgen in soup.find_all("webgen"):
         template_name = webgen.get("template")
         if template_name is None:
-            warn(f"No template specified in {rel}, ignoring...")
+            warn(f"No template specified in {relpath}, ignoring...")
             continue
 
         # Append the dep so we reload in case this template is created
         deps.append(template_name)
         if template_name not in templates:
-            warn(f"No template named '{template_name}' in {rel}, ignoring...")
+            warn(f"No template named '{template_name}' in {relpath}, ignoring...")
             continue
         args = webgen.attrs
 
@@ -163,11 +157,20 @@ def genhtml(inpath, outpath, templates, inroot, deps_map):
                         attr_name = key[3:]
                         dynamic_elem[key[3:]] = args[arg_name]
 
-            webgen.insert_before(template_soup)
+            webgen.insert_before(inflate_webgen(template_soup, deps, templates, relpath))
 
         webgen.decompose()
+    return soup
 
-    deps_map[rel] = deps
+
+def genhtml(inpath, outpath, templates, inroot, deps_map):
+    relpath = os.path.relpath(inpath, inroot)
+    print(f"= Processing {relpath}")
+
+    deps = []
+    with open(inpath) as fp:
+        soup = inflate_webgen(BeautifulSoup(fp, "html.parser"), deps, templates, relpath)
+    deps_map[relpath] = deps
 
     ensure_parent(outpath)
     with open(outpath, "w") as fp:
