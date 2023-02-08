@@ -1,0 +1,31 @@
+<p>
+At Spotify I was on a team named Stellar. They're seated in the Quality Platform <i>Product Area</i>, which in turn is in the Client Platform <a href="https://www.atlassian.com/agile/agile-at-scale/spotify"><i>Tribe</i></a>. Our responsibility was to holistically look at app quality from a technical standpoint. In practice this made us "app owners" for the music app. In practice this meant we owned owned Spotify.app's <i>Info.plist</i> and various app-wide performance and reliability metrics.
+</p>
+<h2>Startup Instrumentation & iOS Prewarm</h2>
+<p>
+In modern versions of iOS Apple implemented the concept of "app prewarming" in <a href="https://www.google.com/search?q=duet+scheduler+macos&client=safari&rls=en&sxsrf=AJOqlzUyv3l5W9_Yf7szG1N_5FIJ2I5NcA%3A1675878459525&ei=O-DjY6DdH46l5NoPkZKEuAo&ved=0ahUKEwjg5pDivYb9AhWOElkFHREJAacQ4dUDCBA&uact=5&oq=duet+scheduler+macos&gs_lcp=Cgxnd3Mtd2l6LXNlcnAQA0oECEEYAEoECEYYAFAuWPUCYOcDaABwAXgAgAEAiAEAkgEAmAEAoAEBwAEB&sclient=gws-wiz-serp">Duet Activity Scheduler Daemon</a>. App prewarming would preemptively launch an app if dasd thought the user would use it soon.
+</p>
+<p>
+For example, if a user frequently launches Spotify throughout the day, dasd would <i>prewarm</i> Spotify whenever the device was idle and had available resources to launch the new process.
+</p>
+<p>
+Sounds simple, right? Unfortunately on an implementation level, this wasn't so straightforward. The process would launch, and so the process' launch time would be set. Unfortunately, this causes a bug with most startup instrumentation: previous to the prewarming feature it was standard to use the process start time to calculate <i>roughly</i> how long the user had to wait after the initiated launching the Spotify app. After the new prewarming the process start time doesn't correlate to the user initiating an app launch.
+</p>
+<p>
+Since, during prewarming, the process start time was <i>before</i> the user initiated app launch, this resulted in launch times skewed too long.
+</p>
+<p>
+Unfortunately Apple has yet to reveal any details of prewarming and insists on users using MetricKit. Unfortunately this isn't as simple as they make it out to be: MetricKit doesn't reveal all the data that's useful for proper performance analysis. In order to solve this problem I reverse engineered how dasd works and discovered some attempted workarounds to fix the instrumentation.
+</p>
+<h2>MetricKit Diagnostic Reports</h2>
+<p>
+I collaborated with a coworker to implement <a href="https://developer.apple.com/documentation/metrickit">MetricKit</a> <a href="https://developer.apple.com/documentation/metrickit/mxdiagnosticpayload">diagnostic report</a> collection for internal employees. We aimed to use this infrastructure to diagnose performance/CPU/battery regressions the employees saw. Long term we hoped to roll this infra out to a random subset of users in order to better understand performance out in prod.
+</p>
+<h2>Early Quality Testing</h2>
+<p>It's a common problem that "quality" is hard to test for in mobile apps. Primarily, this is due to the fact that out in prod we see huge variance in device states: differing scheduler, memory &amp; cache pressure. On top of this, testing is usually done on a specific "test" build of an app.
+</p>
+<p>In order to improve detection of <i>quality regressions</i> I collaborated on the design of a new suite of "early quality" tests. These tests would take the exact build we would send to the app store (or out to employees for alpha/beta testing), run it through a set of product scenarios that were deemed most important by the business &amp; collect various metrics <i>externally</i> from the app. It is important that these metrics were collected external to the app in order to best capture what the user will experience (i.e. they only see the UI of the app and can't manually call specific testing codepaths).
+</p>
+<p>
+These product scenarios were designed to run against multiple <i>quality</i> tests; e.g. sanitizer tests, startup time tests, etc.. This testing infrastructure was designed as a platform in order to better grow Spotify's testing facilities.
+</p>
