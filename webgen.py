@@ -63,13 +63,15 @@ class AutoReloader:
     def baseUrl(self):
         return f"http://127.0.0.1:{self.port}"
 
-    def viewingWebgen(self):
-        current_url = self.getCurrentUrl()
+    def viewingWebgen(self, current_url=None):
+        if current_url is None:
+            current_url = self.getCurrentUrl()
         return current_url.startswith(self.baseUrl)
 
     def __call__(self, path):
         if path.startswith("webgen/"):
-            if not self.viewingWebgen():
+            current_url = self.getCurrentUrl()
+            if not self.viewingWebgen(current_url):
                 return
             current_url_path = current_url[len(self.baseUrl):]
             if current_url_path.startswith("/"):
@@ -132,8 +134,12 @@ def inflate_webgen(soup, deps, templates, relpath):
             warn(f"No template specified in {relpath}, ignoring...")
             continue
 
+        if template_name in deps.get(relpath, set()):
+            warn(f"Template dep cycle, stopping inflation at circular require of {template_name}: {relpath} > {deps.get(relpath)}")
+            continue
+
         # Append the dep so we reload in case this template is created
-        deps.append(template_name)
+        deps.setdefault(relpath, set()).add(template_name)
         if template_name not in templates:
             warn(f"No template named '{template_name}' in {relpath}, ignoring...")
             continue
@@ -157,20 +163,27 @@ def inflate_webgen(soup, deps, templates, relpath):
                         attr_name = key[3:]
                         dynamic_elem[key[3:]] = args[arg_name]
 
-            webgen.insert_before(inflate_webgen(template_soup, deps, templates, relpath))
+            webgen.insert_before(inflate_webgen(template_soup, deps, templates, template_name))
 
         webgen.decompose()
     return soup
 
+def flatten_deps_of(key, deps):
+    res = set()
+    direct_deps = deps.get(key, set())
+    res |= direct_deps
+    for dd in direct_deps:
+        res |= flatten_deps_of(dd, deps)
+    return res
 
 def genhtml(inpath, outpath, templates, inroot, deps_map):
     relpath = os.path.relpath(inpath, inroot)
     print(f"= Processing {relpath}")
 
-    deps = []
+    deps = {}
     with open(inpath) as fp:
         soup = inflate_webgen(BeautifulSoup(fp, "html.parser"), deps, templates, relpath)
-    deps_map[relpath] = deps
+    deps_map[relpath] = flatten_deps_of(relpath, deps)
 
     ensure_parent(outpath)
     with open(outpath, "w") as fp:
