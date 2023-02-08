@@ -41,6 +41,10 @@ body {
   font-weight: 300;
 }
 
+body i {
+  font-style: italic;
+}
+
 ::selection {
   background: var(--element-color);
   color: var(--body-bg);
