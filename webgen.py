@@ -4,6 +4,7 @@ import argparse
 import copy
 import os
 import shutil
+import subprocess
 import sys
 import time
 import traceback
@@ -48,6 +49,34 @@ class DepsMap:
         for file in files:
             self.file_to_templates[file].remove(template)
         return files
+
+class AutoReloader:
+    def __init__(self, enabled, port):
+        self.enabled = enabled
+        self.port = port
+
+    def didNavigate(self, navigated):
+        pass
+
+    def __call__(self, path):
+        if path[0] != "/":
+            path = "/" + path
+        head, tail = os.path.split(path)
+        if tail == "index.html":
+            self.open(head)
+        else:
+            pass
+
+    def open(self, url_path):
+        try:
+            script = f"""tell application "Safari"
+set docURL to "http://127.0.0.1:{self.port}{url_path}"
+set URL of document 1 to docURL
+end tell
+"""
+            subprocess.run(["osascript", "-e", script], check=True)
+        except subprocess.CalledProcessError as exc:
+            warn(f"Failed to reload webpage: {exc}")
 
 def genhtml(inpath, outpath, templates, inroot, deps_map):
     rel = os.path.relpath(inpath, inroot)
@@ -126,6 +155,7 @@ def main(args):
     parser.add_argument("--listen", default=False, action="store_true", help="If specified, stay alive & process files as they change")
     parser.add_argument("--clean", default=False, action="store_true", help="If specified, cleans the out directory before starting")
     parser.add_argument("--port", default=8000, type=int, help="Specify the port to listen to when --listen is specified")
+    parser.add_argument("--autoreload", default=False, action="store_true", help="Auto reload/navigate to the webpage that was last edited")
 
     parsed_args = parser.parse_args()
     in_dir = os.path.abspath(parsed_args.in_dir)
@@ -157,6 +187,8 @@ def main(args):
     if parsed_args.listen:
         from watchdog import events as wd_events
         from watchdog.observers.fsevents import FSEventsObserver as Observer
+
+        autoreloader = AutoReloader(parsed_args.autoreload, parsed_args.port)
 
         class WebGenEventHandler(wd_events.FileSystemEventHandler):
             def __init__(self, in_dir, out_dir, templates, deps_map):
@@ -245,6 +277,7 @@ def main(args):
                     return
                 rel = os.path.relpath(path, self.in_dir)
                 process_file(path, os.path.join(self.out_dir, rel), self.templates, self.in_dir, self.deps_map)
+                autoreloader(rel)
 
         event_handler = WebGenEventHandler(in_dir, out_dir, templates, deps_map)
 
