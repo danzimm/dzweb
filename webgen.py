@@ -72,7 +72,10 @@ class AutoReloader:
                 current_url_path = current_url_path + "index.html"
             template_path = path[len("webgen/"):]
             template = os.path.splitext(template_path)[0]
-            if current_url_path in self.deps_map.getDepsOfTemplate(template):
+            deps = self.deps_map.getDepsOfTemplate(template)
+            if len(deps) == 1:
+                self(next(iter(deps)))
+            elif current_url_path in deps:
                 self.reload()
             return
 
