@@ -134,24 +134,27 @@ def genhtml(inpath, outpath, templates, inroot, deps_map):
             continue
         args = webgen.attrs
 
-        template_soup = copy.copy(templates[template_name])
-        for wg_text in template_soup.find_all("wg-text"):
-            name = wg_text.get("name")
-            if name in args:
-                wg_text.string += args[name]
-                wg_text.unwrap()
-            else:
-                wg_text.decompose()
+        template_soups = copy.copy(templates[template_name])
+        for template_soup in template_soups:
+            for wg_text in template_soup.find_all("wg-text"):
+                name = wg_text.get("name")
+                if name in args:
+                    wg_text.string += args[name]
+                    wg_text.unwrap()
+                else:
+                    wg_text.decompose()
 
-        for dynamic_elem in template_soup.find_all(is_webgen_attr):
-            for key in [k for k in dynamic_elem.attrs.keys() if k.startswith("wg-")]:
-                arg_name = dynamic_elem[key]
-                del dynamic_elem[key]
-                if arg_name in args:
-                    attr_name = key[3:]
-                    dynamic_elem[key[3:]] = args[arg_name]
+            for dynamic_elem in template_soup.find_all(is_webgen_attr):
+                for key in [k for k in dynamic_elem.attrs.keys() if k.startswith("wg-")]:
+                    arg_name = dynamic_elem[key]
+                    del dynamic_elem[key]
+                    if arg_name in args:
+                        attr_name = key[3:]
+                        dynamic_elem[key[3:]] = args[arg_name]
 
-        webgen.replace_with(template_soup)
+            webgen.insert_before(template_soup)
+
+        webgen.decompose()
 
     deps_map[rel] = deps
 
@@ -164,12 +167,13 @@ def load_template(template_path):
     with open(template_path) as fp:
         print(f"+ Loading {os.path.splitext(os.path.basename(template_path))[0]}: ", end='')
         bs = BeautifulSoup(fp, "html.parser")
-        res = next(content for content in bs.contents if isinstance(content, Tag) or isinstance(content, BeautifulSoup))
-        if res is not None:
+        res = [content for content in bs.contents if isinstance(content, Tag) or isinstance(content, BeautifulSoup)]
+        if len(res) > 0:
             print("Success")
+            return res
         else:
             print("Failed, no tags :(")
-        return res
+            return None
 
 def copyfile(src, dst, **kwargs):
     ensure_parent(dst)
