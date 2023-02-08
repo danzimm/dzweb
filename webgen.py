@@ -59,13 +59,19 @@ class AutoReloader:
     def didNavigate(self, navigated):
         pass
 
+    @property
+    def baseUrl(self):
+        return f"http://127.0.0.1:{self.port}"
+
+    def viewingWebgen(self):
+        current_url = self.getCurrentUrl()
+        return current_url.startswith(self.baseUrl)
+
     def __call__(self, path):
         if path.startswith("webgen/"):
-            current_url = self.getCurrentUrl()
-            base_url = f"http://127.0.0.1:{self.port}"
-            if not current_url.startswith(base_url):
+            if not self.viewingWebgen():
                 return
-            current_url_path = current_url[len(base_url):]
+            current_url_path = current_url[len(self.baseUrl):]
             if current_url_path.startswith("/"):
                 current_url_path = current_url_path[1:]
             if current_url_path.endswith("/"):
@@ -97,6 +103,8 @@ end tell
 """)
 
     def reload(self):
+        if not self.viewingWebgen():
+            return
         self.runAppleScript("""tell application "Safari"
 set docUrl to URL of document 1
 set URL of document 1 to docURL
@@ -137,8 +145,8 @@ def genhtml(inpath, outpath, templates, inroot, deps_map):
             continue
         args = webgen.attrs
 
-        template_soups = copy.copy(templates[template_name])
-        for template_soup in template_soups:
+        for ts in templates[template_name]:
+            template_soup = copy.copy(ts)
             for wg_text in template_soup.find_all("wg-text"):
                 name = wg_text.get("name")
                 if name in args:
@@ -163,7 +171,7 @@ def genhtml(inpath, outpath, templates, inroot, deps_map):
 
     ensure_parent(outpath)
     with open(outpath, "w") as fp:
-        fp.write(soup.prettify())
+        fp.write(str(soup))
     print(f"    * Wrote {outpath}")
 
 def load_template(template_path):
