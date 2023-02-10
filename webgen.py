@@ -25,6 +25,18 @@ def warn(*args, **kwargs):
     kwargs.setdefault("file", sys.stderr)
     print("W:", *args, **kwargs)
 
+class SafeFormatDict(dict):
+    def __init__(self, *args, **kwargs):
+        self.didLookup = False
+        super().__init__(*args, **kwargs)
+
+    def __missing__(self, key):
+        return key
+
+    def __getitem__(self, *args, **kwargs):
+        self.didLookup = True
+        return super().__getitem__(*args, **kwargs)
+
 class DepsMap:
     def __init__(self):
         self.template_to_files = {}
@@ -127,6 +139,41 @@ end run""", return_stdout=True).strip()
         except subprocess.CalledProcessError as exc:
             warn(f"Failed to run {script}: {exc}")
 
+class DepNode:
+    def __init__(self, name, parent = None, **kwargs):
+        self.parent = parent
+        self.name = name
+        self.args = dict(kwargs)
+        self.children = []
+
+    def addChild(self, node):
+        node.parent = self
+        self.children.append(node)
+
+class CircularDepException(Exception):
+    def __init__(self, deps):
+        self.deps = deps
+
+    def __str__(self):
+        return f"Found circular dependency for the following deps: {repr(self.deps)}"
+
+    def __repr__(self):
+        return f"CircularDepException({repr(self.deps)})"
+
+def flatten_deps(key, deps, depset=None):
+    if depset is None:
+        depset = set()
+
+    direct_deps = deps.get(key, set())
+    circular_deps = direct_deps & depset
+    if len(circular_deps) != 0:
+        raise CircularDepException(circular_deps)
+    depset |= direct_deps
+    for dd in direct_deps:
+        flatten_deps(dd, deps, depset)
+
+    return depset
+
 def inflate_webgen(soup, deps, templates, relpath):
     for webgen in soup.find_all("webgen"):
         template_name = webgen.get("template")
@@ -134,16 +181,17 @@ def inflate_webgen(soup, deps, templates, relpath):
             warn(f"No template specified in {relpath}, ignoring...")
             continue
 
-        if template_name in deps.get(relpath, set()):
-            warn(f"Template dep cycle, stopping inflation at circular require of {template_name}: {relpath} > {deps.get(relpath)}")
-            continue
+        try:
+            flatten_deps(template_name, deps)
+        except CircularDepException as exc:
+            warn(f"{exc} in {relpath} > {deps.get(relpath)}, skipping...")
 
         # Append the dep so we reload in case this template is created
         deps.setdefault(relpath, set()).add(template_name)
         if template_name not in templates:
             warn(f"No template named '{template_name}' in {relpath}, ignoring...")
             continue
-        args = webgen.attrs
+        args = SafeFormatDict(webgen.attrs)
 
         for ts in templates[template_name]:
             template_soup = copy.copy(ts)
@@ -157,24 +205,20 @@ def inflate_webgen(soup, deps, templates, relpath):
 
             for dynamic_elem in template_soup.find_all(is_webgen_attr):
                 for key in [k for k in dynamic_elem.attrs.keys() if k.startswith("wg-")]:
-                    arg_name = dynamic_elem[key]
+                    format_str = dynamic_elem[key]
                     del dynamic_elem[key]
-                    if arg_name in args:
-                        attr_name = key[3:]
-                        dynamic_elem[key[3:]] = args[arg_name]
+                    attr_name = key[3:]
+                    args.didLookup = False
+                    new_value = format_str.format_map(args)
+                    if not args.didLookup:
+                        new_value = args[format_str] if format_str else None
+                    if new_value is not None:
+                        dynamic_elem[key[3:]] = new_value
 
             webgen.insert_before(inflate_webgen(template_soup, deps, templates, template_name))
 
         webgen.decompose()
     return soup
-
-def flatten_deps_of(key, deps):
-    res = set()
-    direct_deps = deps.get(key, set())
-    res |= direct_deps
-    for dd in direct_deps:
-        res |= flatten_deps_of(dd, deps)
-    return res
 
 def genhtml(inpath, outpath, templates, inroot, deps_map):
     relpath = os.path.relpath(inpath, inroot)
@@ -183,7 +227,7 @@ def genhtml(inpath, outpath, templates, inroot, deps_map):
     deps = {}
     with open(inpath) as fp:
         soup = inflate_webgen(BeautifulSoup(fp, "html.parser"), deps, templates, relpath)
-    deps_map[relpath] = flatten_deps_of(relpath, deps)
+    deps_map[relpath] = flatten_deps(relpath, deps)
 
     ensure_parent(outpath)
     with open(outpath, "w") as fp:
