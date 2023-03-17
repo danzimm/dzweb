@@ -1,0 +1,3 @@
+[submodule "hpp"]
+	path = hpp
+	url = https://github.com/danzimm/hpp.git
