@@ -198,7 +198,7 @@ def inflate_webgen(soup, deps, templates, relpath):
             for wg_text in template_soup.find_all("wg-text"):
                 name = wg_text.get("name")
                 if name in args:
-                    wg_text.string += args[name]
+                    wg_text.string = (wg_text.string or "") + args[name]
                     wg_text.unwrap()
                 else:
                     wg_text.decompose()
