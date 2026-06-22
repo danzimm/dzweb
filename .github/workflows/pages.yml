@@ -33,10 +33,40 @@ jobs:
           python-version: '3.x'
 
       - name: Install HPP dependencies
-        run: python -m pip install -r hpp/requirements.txt
+        run: python -m pip install --upgrade --force-reinstall -r hpp/requirements.txt
+
+      - name: Show HPP environment
+        run: |
+          git submodule status
+          python - <<'PY'
+          import bs4
+          print(f"beautifulsoup4=={bs4.__version__}")
+          PY
 
       - name: Generate site
         run: python hpp/hpp.py --url-prefix /dzweb
+
+      - name: Verify generated site
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import sys
+
+          failed = False
+          for path in Path("sitegen").rglob("*.html"):
+              text = path.read_text()
+              if "hpp-text" in text:
+                  print(f"{path}: leaked hpp-text")
+                  failed = True
+              if path.as_posix().endswith("academics/index.html"):
+                  expected = "<title>DanZ: Academic Experience</title>"
+                  if expected not in text:
+                      print(f"{path}: missing {expected}")
+                      failed = True
+
+          if failed:
+              sys.exit(1)
+          PY
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
