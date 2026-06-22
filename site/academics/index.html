@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <hpp template="head" subtitle="Academic Experience" />
+  <body>
+    <hpp template="nav" academics-tab-class="selected" />
+    <main id="academic-experience">
+      <section class="academic academic-intro">
+        <div class="desc academic-hero">
+          <figure class="luc-mark">
+            <img
+              class="luc-logo-light"
+              src="/images/luc-logo-maroon.svg"
+              alt="Loyola University Chicago"
+            />
+            <img
+              class="luc-logo-dark"
+              src="/images/luc-logo-white.svg"
+              alt="Loyola University Chicago"
+            />
+          </figure>
+          <div>
+            <p class="section-label">Education</p>
+            <p>My academic training is at Loyola University Chicago: an M.S. in Mathematics, completed in Spring 2025, and a B.S. in Theoretical Physics and Mathematics, completed in Spring 2015.</p>
+            <p>I use that background as a common language for geometry, analysis, physical modeling, and computation. I am most interested in problems where the definition of an object, the structure it preserves, and the limiting process that recovers a classical theory have to be understood together.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="academic">
+        <div class="desc academic-stream">
+          <p class="section-label">Research</p>
+          <article class="entry research-entry">
+            <figure class="academic-figure graph-figure">
+              <picture>
+                <source srcset="/images/disks-rotated-dark.png" media="(prefers-color-scheme: dark)" />
+                <img src="/images/disks-rotated.png" alt="Rotated disks about a curve used to illustrate nonlocal curvature" />
+              </picture>
+            </figure>
+            <div>
+              <h2>Asymptotic Limits of Nonlocal Curvature for Curves</h2>
+              <p class="role-meta">Loyola University Chicago · B. Seguin · 2023–present</p>
+              <p>With B. Seguin, I study a nonlocal curvature functional for curves in R<sup>n</sup>. The central question is whether, as the interaction scale tends to zero, the nonlocal quantity converges to classical curvature.</p>
+              <p>For circles, I have verified this recovery explicitly. I am now working on the corresponding convergence statement for sufficiently regular curves. A <a href="https://magazz.danz.im/nlc.pdf">manuscript is in progress</a>.</p>
+            </div>
+          </article>
+          <article class="entry research-entry">
+            <figure class="academic-figure">
+              <picture>
+                <source srcset="/images/supernova-typing-dark.png" media="(prefers-color-scheme: dark)" />
+                <img src="/images/supernova-typing.png" alt="Histogram of supernova type classifications" />
+              </picture>
+            </figure>
+            <div>
+              <h2>Supernova Photometric Contamination Studies</h2>
+              <p class="role-meta">Argonne National Laboratory · S. Kuhlmann, J. Cunningham · 2013–2015</p>
+              <p>At Argonne National Laboratory, I studied contamination in photometrically selected Type Ia supernova samples. I used SNANA simulations, SALT2 parameter-space cuts, and SNCosmo template fitting to separate Type Ia candidates from core-collapse supernovae with similar light curves.</p>
+              <p>By refining the light-curve classification procedure, I reduced false-positive Type Ia identifications by approximately 50%. The <a href="https://magazz.danz.im/aas2015.pdf">2015 AAS session poster</a> and supporting <a href="https://github.com/danzimm/sim_typing/">analysis code</a> are available online.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="academic academic-interests">
+        <div class="desc academic-stream">
+          <p class="section-label">Current interests</p>
+          <p>I am interested in geometric analysis, nonlocal-to-local limits, variational definitions of geometric quantities, and the way physical models suggest useful mathematical structure.</p>
+          <p>I also use computation as a preliminary instrument: not as a substitute for proof, but as a way to test definitions, identify examples, and determine which conjectures are coherent enough to formalize.</p>
+        </div>
+      </section>
+
+    </main>
+  </body>
+</html>

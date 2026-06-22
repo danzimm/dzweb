@@ -1,0 +1,234 @@
+\documentclass[tikz,border=3mm]{standalone}
+\usepackage{tikz}
+\usepackage{tikz-3dplot}
+\usepackage{etoolbox}
+\input{../../colors.tex}
+
+\definecolor{sitebg}{HTML}{383B3C}
+\definecolor{darkPlane}{HTML}{465052}
+\definecolor{darkCurve}{HTML}{E6ECEC}
+\definecolor{darkBlue}{HTML}{50AEEA}
+\definecolor{darkOrange}{HTML}{E88745}
+\definecolor{darkSand}{HTML}{E8D9A8}
+\definecolor{darkGreen}{HTML}{89D1C2}
+\definecolor{darkViolet}{HTML}{D4A1D8}
+\definecolor{darkRose}{HTML}{E99DAA}
+\pagecolor{sitebg}
+\colorlet{cbcyan}{darkRose}
+\colorlet{cbviolet}{darkViolet}
+\colorlet{cbgreen}{darkGreen}
+\colorlet{cborange}{darkSand}
+\colorlet{cbgray}{darkPlane}
+\colorlet{cbparabola}{darkCurve}
+\colorlet{cblineseg}{darkBlue}
+\colorlet{cbcirc}{darkOrange}
+\def\emphasisthickness{2.3pt}
+
+\begin{document}
+\tdplotsetmaincoords{62}{28}
+
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \useasboundingbox (-5.6,-3.0) rectangle (5.6,3.2);
+
+  \begin{scope}[shift={(-1.15,-1.00)}]
+  \begin{scope}[tdplot_main_coords, scale=3.0, line cap=round, line join=round]
+    \def\R{0.55}
+    \def\az{-32}
+    \def\tilt{28}
+    \def\h{0.16}
+    \def\phitwo{-40}
+    \def\phithree{35}
+    \def\phifour{70}
+
+    % Base/orange disk geometry.
+    \pgfmathsetmacro{\nx}{cos(\az)*cos(\tilt)}
+    \pgfmathsetmacro{\ny}{sin(\az)*cos(\tilt)}
+    \pgfmathsetmacro{\nz}{sin(\tilt)}
+    \pgfmathsetmacro{\rho}{sqrt(\R*\R-\h*\h)}
+    \pgfmathsetmacro{\arg}{-\h*tan(\tilt)/\rho}
+    \pgfmathsetmacro{\beta}{\az + acos(\arg)}
+    \pgfmathsetmacro{\cxo}{\rho*cos(\beta)}
+    \pgfmathsetmacro{\cyo}{\rho*sin(\beta)}
+    \pgfmathsetmacro{\czo}{\h}
+
+    % Common chord direction and endpoint.
+    \pgfmathsetmacro{\lxraw}{-\ny}
+    \pgfmathsetmacro{\lyraw}{\nx}
+    \pgfmathsetmacro{\lnorm}{sqrt(\lxraw*\lxraw + \lyraw*\lyraw)}
+    \pgfmathsetmacro{\lx}{\lxraw/\lnorm}
+    \pgfmathsetmacro{\ly}{\lyraw/\lnorm}
+    \pgfmathsetmacro{\lz}{0}
+    \pgfmathsetmacro{\other}{2*(\cxo*\lx + \cyo*\ly)}
+    \pgfmathsetmacro{\bx}{\other*\lx}
+    \pgfmathsetmacro{\by}{\other*\ly}
+
+    % Midpoint of the chord and shared center offset distance.
+    \pgfmathsetmacro{\mx}{\bx/2}
+    \pgfmathsetmacro{\my}{\by/2}
+    \pgfmathsetmacro{\d}{sqrt(\R*\R - (\other/2)*(\other/2))}
+    \pgfmathsetmacro{\halfchord}{\other/2}
+    \pgfmathsetmacro{\thetaZero}{atan2(-\d,\halfchord)}
+
+    % Base q-direction from the original orange disk.
+    \pgfmathsetmacro{\qox}{(\cxo-\mx)/\d}
+    \pgfmathsetmacro{\qoy}{(\cyo-\my)/\d}
+    \pgfmathsetmacro{\qoz}{\czo/\d}
+
+    % Rotate q around the common chord direction to get the other disks.
+    \pgfmathsetmacro{\px}{\ly*\qoz - \lz*\qoy}
+    \pgfmathsetmacro{\py}{\lz*\qox - \lx*\qoz}
+    \pgfmathsetmacro{\pz}{\lx*\qoy - \ly*\qox}
+
+    \pgfmathsetmacro{\qtx}{cos(\phitwo)*\qox + sin(\phitwo)*\px}
+    \pgfmathsetmacro{\qty}{cos(\phitwo)*\qoy + sin(\phitwo)*\py}
+    \pgfmathsetmacro{\qtz}{cos(\phitwo)*\qoz + sin(\phitwo)*\pz}
+    \pgfmathsetmacro{\cxt}{\mx + \d*\qtx}
+    \pgfmathsetmacro{\cyt}{\my + \d*\qty}
+    \pgfmathsetmacro{\czt}{\d*\qtz}
+
+    \pgfmathsetmacro{\qrx}{cos(\phithree)*\qox + sin(\phithree)*\px}
+    \pgfmathsetmacro{\qry}{cos(\phithree)*\qoy + sin(\phithree)*\py}
+    \pgfmathsetmacro{\qrz}{cos(\phithree)*\qoz + sin(\phithree)*\pz}
+    \pgfmathsetmacro{\cxr}{\mx + \d*\qrx}
+    \pgfmathsetmacro{\cyr}{\my + \d*\qry}
+    \pgfmathsetmacro{\czr}{\d*\qrz}
+
+    \pgfmathsetmacro{\qsx}{cos(\phifour)*\qox + sin(\phifour)*\px}
+    \pgfmathsetmacro{\qsy}{cos(\phifour)*\qoy + sin(\phifour)*\py}
+    \pgfmathsetmacro{\qsz}{cos(\phifour)*\qoz + sin(\phifour)*\pz}
+    \pgfmathsetmacro{\cxs}{\mx + \d*\qsx}
+    \pgfmathsetmacro{\cys}{\my + \d*\qsy}
+    \pgfmathsetmacro{\czs}{\d*\qsz}
+
+    % Back half of the circle through the disk centers.
+    \draw[cbcirc!70!black, very thick, samples=120, variable=\s]
+      plot[domain=180:360]
+      ({\mx + \d*(cos(\s)*\qox + sin(\s)*\px)},
+       {\my + \d*(cos(\s)*\qoy + sin(\s)*\py)},
+       {\d*(cos(\s)*\qoz + sin(\s)*\pz)});
+
+    % Below-plane portions first: fourth, third, second, then orange.
+    \fill[cbcyan!55!white, opacity=0.12, samples=180, variable=\t]
+      plot[domain={180-\thetaZero}:{360+\thetaZero}]
+      ({\cxs + \R*cos(\t)*\lx + \R*sin(\t)*\qsx},
+       {\cys + \R*cos(\t)*\ly + \R*sin(\t)*\qsy},
+       {\czs + \R*cos(\t)*\lz + \R*sin(\t)*\qsz}) -- cycle;
+    \ifdef{\drawoutline}{
+      \draw[cbcyan!70!black, semithick, samples=140, variable=\t]
+        plot[domain={180-\thetaZero}:{360+\thetaZero}]
+        ({\cxs + \R*cos(\t)*\lx + \R*sin(\t)*\qsx},
+         {\cys + \R*cos(\t)*\ly + \R*sin(\t)*\qsy},
+         {\czs + \R*cos(\t)*\lz + \R*sin(\t)*\qsz});
+    };
+
+    \fill[cbviolet!35!white, opacity=0.14, samples=180, variable=\t]
+      plot[domain={180-\thetaZero}:{360+\thetaZero}]
+      ({\cxr + \R*cos(\t)*\lx + \R*sin(\t)*\qrx},
+       {\cyr + \R*cos(\t)*\ly + \R*sin(\t)*\qry},
+       {\czr + \R*cos(\t)*\lz + \R*sin(\t)*\qrz}) -- cycle;
+    \ifdef{\drawoutline}{
+    \draw[cbviolet!80!black, semithick, samples=140, variable=\t]
+      plot[domain={180-\thetaZero}:{360+\thetaZero}]
+      ({\cxr + \R*cos(\t)*\lx + \R*sin(\t)*\qrx},
+       {\cyr + \R*cos(\t)*\ly + \R*sin(\t)*\qry},
+       {\czr + \R*cos(\t)*\lz + \R*sin(\t)*\qrz});
+    };
+
+    \fill[cbgreen, opacity=0.18, samples=180, variable=\t]
+      plot[domain={180-\thetaZero}:{360+\thetaZero}]
+      ({\cxt + \R*cos(\t)*\lx + \R*sin(\t)*\qtx},
+       {\cyt + \R*cos(\t)*\ly + \R*sin(\t)*\qty},
+       {\czt + \R*cos(\t)*\lz + \R*sin(\t)*\qtz}) -- cycle;
+    \ifdef{\drawoutline}{
+    \draw[cbgreen!50!black, semithick, samples=140, variable=\t]
+      plot[domain={180-\thetaZero}:{360+\thetaZero}]
+      ({\cxt + \R*cos(\t)*\lx + \R*sin(\t)*\qtx},
+       {\cyt + \R*cos(\t)*\ly + \R*sin(\t)*\qty},
+       {\czt + \R*cos(\t)*\lz + \R*sin(\t)*\qtz});
+    };
+
+    \fill[cborange, opacity=0.28, samples=180, variable=\t]
+      plot[domain={180-\thetaZero}:{360+\thetaZero}]
+      ({\cxo + \R*cos(\t)*\lx + \R*sin(\t)*\qox},
+       {\cyo + \R*cos(\t)*\ly + \R*sin(\t)*\qoy},
+       {\czo + \R*cos(\t)*\lz + \R*sin(\t)*\qoz}) -- cycle;
+    \ifdef{\drawoutline}{
+    \draw[cborange!80!black, semithick, samples=140, variable=\t]
+      plot[domain={180-\thetaZero}:{360+\thetaZero}]
+      ({\cxo + \R*cos(\t)*\lx + \R*sin(\t)*\qox},
+       {\cyo + \R*cos(\t)*\ly + \R*sin(\t)*\qoy},
+       {\czo + \R*cos(\t)*\lz + \R*sin(\t)*\qoz});
+   };
+
+    % Plane and parabola.
+    \fill[cbgray, opacity=0.60]
+      (-1.45,-0.45,0) -- (1.45,-0.45,0) -- (1.45,2.05,0) -- (-1.45,2.05,0) -- cycle;
+    \draw[cbparabola, thick, samples=100, domain=-1.35:1.35, variable=\uvar]
+      plot ({\uvar},{\uvar*\uvar},0);
+
+    % Above-plane portions: green first, then orange, then third, then fourth on top.
+    \fill[cbgreen, opacity=0.36, samples=180, variable=\t]
+      plot[domain={\thetaZero}:{180-\thetaZero}]
+      ({\cxt + \R*cos(\t)*\lx + \R*sin(\t)*\qtx},
+       {\cyt + \R*cos(\t)*\ly + \R*sin(\t)*\qty},
+       {\czt + \R*cos(\t)*\lz + \R*sin(\t)*\qtz}) -- cycle;
+
+    \ifdef{\drawoutline}{
+    \draw[cbgreen!90!black, semithick, samples=140, variable=\t]
+      plot[domain={\thetaZero}:{180-\thetaZero}]
+      ({\cxt + \R*cos(\t)*\lx + \R*sin(\t)*\qtx},
+       {\cyt + \R*cos(\t)*\ly + \R*sin(\t)*\qty},
+       {\czt + \R*cos(\t)*\lz + \R*sin(\t)*\qtz});
+     };
+
+    \fill[cborange, opacity=0.56, samples=180, variable=\t]
+      plot[domain={\thetaZero}:{180-\thetaZero}]
+      ({\cxo + \R*cos(\t)*\lx + \R*sin(\t)*\qox},
+       {\cyo + \R*cos(\t)*\ly + \R*sin(\t)*\qoy},
+       {\czo + \R*cos(\t)*\lz + \R*sin(\t)*\qoz}) -- cycle;
+    \ifdef{\drawoutline}{
+    \draw[cborange!90!black, semithick, samples=140, variable=\t]
+      plot[domain={\thetaZero}:{180-\thetaZero}]
+      ({\cxo + \R*cos(\t)*\lx + \R*sin(\t)*\qox},
+       {\cyo + \R*cos(\t)*\ly + \R*sin(\t)*\qoy},
+       {\czo + \R*cos(\t)*\lz + \R*sin(\t)*\qoz});
+     };
+
+    \fill[cbviolet, opacity=0.28, samples=180, variable=\t]
+      plot[domain={\thetaZero}:{180-\thetaZero}]
+      ({\cxr + \R*cos(\t)*\lx + \R*sin(\t)*\qrx},
+       {\cyr + \R*cos(\t)*\ly + \R*sin(\t)*\qry},
+       {\czr + \R*cos(\t)*\lz + \R*sin(\t)*\qrz}) -- cycle;
+    \ifdef{\drawoutline}{
+    \draw[cbviolet!90!black, semithick, samples=140, variable=\t]
+      plot[domain={\thetaZero}:{180-\thetaZero}]
+      ({\cxr + \R*cos(\t)*\lx + \R*sin(\t)*\qrx},
+       {\cyr + \R*cos(\t)*\ly + \R*sin(\t)*\qry},
+       {\czr + \R*cos(\t)*\lz + \R*sin(\t)*\qrz});
+     };
+
+    \fill[cbcyan, opacity=0.24, samples=180, variable=\t]
+      plot[domain={\thetaZero}:{180-\thetaZero}]
+      ({\cxs + \R*cos(\t)*\lx + \R*sin(\t)*\qsx},
+       {\cys + \R*cos(\t)*\ly + \R*sin(\t)*\qsy},
+       {\czs + \R*cos(\t)*\lz + \R*sin(\t)*\qsz}) -- cycle;
+    \ifdef{\drawoutline}{
+    \draw[cbcyan!90!black, semithick, samples=140, variable=\t]
+      plot[domain={\thetaZero}:{180-\thetaZero}]
+      ({\cxs + \R*cos(\t)*\lx + \R*sin(\t)*\qsx},
+       {\cys + \R*cos(\t)*\ly + \R*sin(\t)*\qsy},
+       {\czs + \R*cos(\t)*\lz + \R*sin(\t)*\qsz});
+     };
+
+    \draw[cblineseg, line width=\emphasisthickness] (0,0,0) -- (\bx,\by,0);
+    % Front half of the circle through the disk centers.
+    \draw[cbcirc, line width=\emphasisthickness, samples=120, variable=\s]
+      plot[domain=0:180]
+      ({\mx + \d*(cos(\s)*\qox + sin(\s)*\px)},
+       {\my + \d*(cos(\s)*\qoy + sin(\s)*\py)},
+       {\d*(cos(\s)*\qoz + sin(\s)*\pz)});
+    \fill (0,0,0) circle[radius=0.45pt];
+  \end{scope}
+  \end{scope}
+\end{tikzpicture}
+\end{document}
