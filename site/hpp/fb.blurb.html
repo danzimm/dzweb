@@ -1,6 +1,12 @@
 <p class="role-meta">Senior Software Engineer · iOS + Android Performance · May 2017–May 2020</p>
 <ul class="details">
-  <li>Delivered 5–40% CPU, I/O, and startup-performance improvements across large-scale mobile systems through profiling-guided optimizations, bytecode analysis, and AOSP on-device PGO.</li>
-  <li>Designed and implemented Objective-C and Android-bytecode compiler optimizations, including Objective-C++ code-generation fixes and debug-information reductions that cut binaries by 4–20%.</li>
+  <li>Delivered 5–40% CPU, I/O, and startup-performance improvements across large-scale mobile systems through profiling-guided optimizations, bytecode analysis, and <a href="https://android-review.googlesource.com/q/owner:danzimm%2540fb.com">AOSP</a> on-device PGO.</li>
+  <li>Designed and implemented Objective-C and Android-bytecode compiler optimizations, including Objective-C++ code-generation fixes (<a href="https://reviews.llvm.org/D41050">D41050</a>, <a href="https://reviews.llvm.org/D59873">D59873</a>) and debug-information reductions that cut binaries by 4–20%.</li>
   <li>Built large-scale performance-modeling frameworks using clustering and regression to analyze system behavior and guide engineering decisions.</li>
 </ul>
+<h2>Android Binary Size Investigations</h2>
+<p>Identified low-entropy regions in Android binaries and implemented compiler optimizations to reduce binary size through <a href="https://github.com/facebook/redex/blob/5dfb66d950d672908a3961d43a9e3473cac48353/libredex/IODIMetadata.h">IODI</a>.</p>
+<h2>JavaScript Startup Execution Analysis</h2>
+<p>Identified I/O inefficiencies caused by low-entropy metadata and improved them through string interning in <a href="https://github.com/facebook/hermes">Hermes</a>.</p>
+<h2>iOS Startup Execution Analysis</h2>
+<p>Used profilers to trace inefficient memory-faulting patterns; the resulting internal technical report documented measurements, the compiler source of the bad code, and reproducible steps.</p>

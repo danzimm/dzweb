@@ -29,8 +29,16 @@
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  #projectvision-logo [id="Project"],
+  #projectvision-logo [id="VISION"] {
+    fill: #9bd4e5;
+  }
+}
+
 html {
   background: var(--body-bg);
+  min-height: 100%;
 }
 
 body {
@@ -39,6 +47,7 @@ body {
   --element-color: var(--body-color);
   font-family: 'Hanken Grotesk', sans-serif;
   font-weight: 300;
+  min-height: 100vh;
 }
 
 body i {
@@ -154,6 +163,10 @@ main {
   transition: 0.1s filter linear;
 }
 
+main section {
+  display: flow-root;
+}
+
 main a {
   color: var(--link-color);
   --element-color: var(--link-color);
@@ -188,11 +201,15 @@ main section h1 {
   font-weight: bold;
   padding-top: var(--sep);
   margin-top: var(--sep);
-  margin-bottom: var(--sep) / 2;
+  margin-bottom: calc(var(--sep) / 2);
   background: var(--body-bg);
   background: linear-gradient(180deg, var(--body-bg) 0%, var(--body-bg) 70%, rgba(0,0,0,0) 100%);
   color: #51b4a9;
   --element-color: #51b4a9;
+}
+
+main section:first-child h1 {
+  margin-top: 0;
 }
 
 main section h1 b {
@@ -201,30 +218,63 @@ main section h1 b {
 }
 
 main section h1 svg {
-  height: 1.85rem;
+  height: 2.5rem;
+  width: auto;
   vertical-align: middle;
 }
 
-#spotify h1 svg, #snap h1 svg {
-  height: 2.35rem;
+#spotify-logo svg {
+  height: 2.5rem;
 }
 
-#meta h1 svg path {
-  fill: #0081fb;
+#snap-logo svg {
+  height: 2.85rem;
 }
 
-#adyen h1 svg {
-  height: 5.5rem;
-  margin-top: -1.825rem;
-  margin-bottom: -1.825rem;
+#projectvision-logo svg {
+  height: 2.4rem;
 }
 
-#adyen h1 svg path {
+#meta-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+#meta-logo svg {
+  height: 2.5rem;
+}
+
+#meta-logo .meta-wordmark {
+  color: #0081fb;
+  font-size: 1.96rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+#adyen-logo svg {
+  height: 1.5rem;
+}
+
+#adyen-logo svg path {
   fill: #0abf53;
 }
 
-#projectvision h1 svg {
-  height: 2.1rem;
+#fb-logo svg {
+  height: 1.67rem;
+}
+
+#arity-logo svg {
+  height: 1.5rem;
+}
+
+#stagebloc-logo svg {
+  height: 1.5rem;
+}
+
+#google-logo svg {
+  height: 1.5rem;
 }
 
 main {
@@ -234,6 +284,12 @@ main {
 main p {
   margin-bottom: 0.85rem;
   line-height: 1.45;
+}
+
+main section > :last-child,
+main section > div > :last-child,
+main .desc > :last-child {
+  margin-bottom: 0;
 }
 
 main h2 {
@@ -274,6 +330,256 @@ main .entry + .entry {
 
 main .entry h2 {
   color: #60d4c8;
+}
+
+.work-intro {
+  padding-top: 1.1rem;
+}
+
+main section .work-stream {
+  max-width: 50rem;
+  margin-left: calc(1.25rem + 15.5rem + 1.5rem);
+}
+
+.work-entry {
+  display: grid;
+  grid-template-columns: minmax(10rem, 15.5rem) minmax(0, 50rem);
+  column-gap: 1.5rem;
+  align-items: start;
+  margin-top: 2.35rem;
+}
+
+.work-logo {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 4.75rem;
+  margin: 0;
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: sticky;
+  top: 0.75rem;
+}
+
+.work-logo svg {
+  display: block;
+  max-width: 100%;
+}
+
+.work-entry .desc {
+  max-width: 50rem;
+  margin-left: 0;
+}
+
+.work-entry .role-meta {
+  color: rgba(56, 59, 60, 0.68);
+  margin-bottom: 0.85rem;
+}
+
+.work-entry h2 {
+  color: var(--body-color);
+  font-size: 1.12rem;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.25em;
+}
+
+.work-logo#adyen-logo svg {
+  height: 1.75rem;
+}
+
+.work-logo#arity-logo svg {
+  height: 1.65rem;
+}
+
+.work-logo#stagebloc-logo svg {
+  height: 1.65rem;
+}
+
+.work-logo#google-logo svg {
+  height: 1.65rem;
+}
+
+.academic-hero,
+.academic-stream {
+  display: grid;
+  align-items: start;
+}
+
+.academic-hero {
+  grid-template-columns: minmax(10rem, 15.5rem) minmax(0, 50rem);
+  column-gap: 2rem;
+  align-items: center;
+  padding-top: 1.1rem;
+}
+
+main section .academic-stream {
+  display: block;
+  max-width: 50rem;
+  margin-left: calc(1.25rem + 15.5rem + 2rem);
+}
+
+main section .academic-stream .section-label {
+  margin-left: 0;
+}
+
+.academic-intro + .academic {
+  margin-top: 1.5rem;
+}
+
+.section-label {
+  color: rgba(56, 59, 60, 0.58);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  margin-bottom: 0.7rem;
+  text-transform: uppercase;
+}
+
+.luc-mark,
+.academic-figure {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  background: rgba(255, 250, 242, 0.62);
+  box-shadow: inset 0 0 0 1px rgba(90, 7, 34, 0.08);
+}
+
+.luc-mark {
+  box-sizing: border-box;
+  max-width: 15.5rem;
+  width: 100%;
+}
+
+.luc-mark img,
+.academic-figure picture,
+.academic-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.academic-figure {
+  background: rgba(255, 255, 255, 0.66);
+  overflow: hidden;
+}
+
+.luc-mark .luc-logo-dark {
+  display: none;
+}
+
+.research-entry .academic-figure {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+  max-width: 20rem;
+  min-height: 0;
+}
+
+.research-entry .academic-figure picture,
+.research-entry .academic-figure img {
+  max-width: 100%;
+  max-height: 10rem;
+  object-fit: contain;
+}
+
+.research-entry .graph-figure picture,
+.research-entry .graph-figure img {
+  width: auto;
+  height: 7.8rem;
+}
+
+.academic-figure figcaption {
+  color: rgba(56, 59, 60, 0.72);
+  font-size: 0.78rem;
+  line-height: 1.3;
+  margin-top: 0.6rem;
+  text-align: center;
+}
+
+.academic-interests .desc {
+  border-top: 1px solid rgba(56, 59, 60, 0.12);
+  padding-top: 1.1rem;
+}
+
+main .academic h2 {
+  color: var(--body-color);
+  font-size: 1.12rem;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.25em;
+}
+
+main section.academic h1 {
+  color: #449f97;
+  --element-color: #449f97;
+}
+
+.academic .role-meta {
+  color: rgba(56, 59, 60, 0.68);
+  margin-bottom: 0.85rem;
+}
+
+.academic .entry + .entry {
+  margin-top: 2.35rem;
+}
+
+.academic-stream .research-entry {
+  display: grid;
+  grid-template-columns: minmax(10rem, 15.5rem) minmax(0, 1fr);
+  column-gap: 1.5rem;
+  align-items: center;
+  margin-left: calc(-15.5rem - 1.5rem);
+}
+
+@media (prefers-color-scheme: dark) {
+  main section.academic h1 {
+    color: #48aaa1;
+    --element-color: #48aaa1;
+  }
+
+  .luc-mark {
+    background: #2e3233;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+
+  .academic-figure {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+
+  .academic-figure figcaption {
+    color: rgba(210, 214, 214, 0.64);
+  }
+
+  .academic .role-meta {
+    color: rgba(210, 214, 214, 0.58);
+  }
+
+  .section-label {
+    color: rgba(210, 214, 214, 0.5);
+  }
+
+  .academic-interests .desc {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .work-entry .role-meta {
+    color: rgba(210, 214, 214, 0.58);
+  }
+
+  .luc-mark .luc-logo-light {
+    display: none;
+  }
+
+  .luc-mark .luc-logo-dark {
+    display: block;
+  }
+
 }
 
 @media (max-width: 430px) {
@@ -317,5 +623,108 @@ main .entry h2 {
   main {
     margin-left: 1rem;
     margin-right: 1rem;
+  }
+
+  .academic-hero,
+  .academic-stream {
+    display: block;
+  }
+
+  .work-entry {
+    display: block;
+    margin-top: 2rem;
+  }
+
+  main section .work-stream,
+  .work-entry .desc {
+    margin-left: 1.25rem;
+  }
+
+  .work-logo {
+    margin-bottom: 1rem;
+    position: static;
+  }
+
+  .academic-stream .research-entry {
+    display: block;
+    margin-left: 0;
+  }
+
+  .luc-mark {
+    max-width: none;
+  }
+
+  main section .academic-stream,
+  .academic-interests .desc {
+    margin-left: 1.25rem;
+  }
+
+  .luc-mark,
+  .academic-figure {
+    margin-bottom: 1rem;
+  }
+
+  .research-entry .academic-figure {
+    display: block;
+    height: auto;
+    max-width: none;
+  }
+
+  .research-entry .graph-figure picture,
+  .research-entry .graph-figure img {
+    width: 100%;
+    height: auto;
+  }
+
+  .academic-figure figcaption {
+    font-size: 0.74rem;
+  }
+
+  main .academic h2 {
+    font-size: 1.12rem;
+  }
+
+  main section h1 svg {
+    height: 2.25rem;
+  }
+
+  #spotify-logo svg {
+    height: 2.25rem;
+  }
+
+  #snap-logo svg {
+    height: 2.55rem;
+  }
+
+  #projectvision-logo svg {
+    height: 2.33rem;
+  }
+
+  #meta-logo svg {
+    height: 2.15rem;
+  }
+
+  #meta-logo .meta-wordmark {
+    font-size: 1.84rem;
+  }
+
+  #adyen-logo svg {
+    height: 1.35rem;
+  }
+
+  #fb-logo svg {
+    height: 1.5rem;
+  }
+
+  #arity-logo svg {
+    height: 1.8rem;
+  }
+
+  #stagebloc-logo svg {
+    height: 1.41rem;
+  }
+
+  #google-logo svg {
+    height: 1.38rem;
   }
 }

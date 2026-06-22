@@ -1,2 +1,4 @@
-sitegen
-.codex-screenshots
+sitegen/
+.codex/
+.codexbk/
+.codex-screenshots/
