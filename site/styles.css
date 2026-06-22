@@ -182,8 +182,9 @@ main section h1 {
   position: sticky;
   top: 0px;
   margin: 0;
-  font-size: 2rem;
-  padding-bottom: 0.414em;
+  font-size: clamp(1.5rem, 2vw, 1.8rem);
+  line-height: 1.1;
+  padding-bottom: 0.35em;
   font-weight: bold;
   padding-top: var(--sep);
   margin-top: var(--sep);
@@ -200,11 +201,30 @@ main section h1 b {
 }
 
 main section h1 svg {
-  height: 2rem;
+  height: 1.85rem;
+  vertical-align: middle;
 }
 
 #spotify h1 svg, #snap h1 svg {
-  height: 2.75rem;
+  height: 2.35rem;
+}
+
+#meta h1 svg path {
+  fill: #0081fb;
+}
+
+#adyen h1 svg {
+  height: 5.5rem;
+  margin-top: -1.825rem;
+  margin-bottom: -1.825rem;
+}
+
+#adyen h1 svg path {
+  fill: #0abf53;
+}
+
+#projectvision h1 svg {
+  height: 2.1rem;
 }
 
 main {
@@ -212,17 +232,15 @@ main {
 }
 
 main p {
-  margin-bottom: 1rem;
-}
-
-main p {
-  line-height: 1.2em;
+  margin-bottom: 0.85rem;
+  line-height: 1.45;
 }
 
 main h2 {
-  font-size: 1.5rem;
-  padding-bottom: 0.414em;
-  font-style: bold;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  padding-bottom: 0.3em;
+  font-weight: bold;
 }
 
 .role:first-child h1 {
@@ -230,7 +248,32 @@ main h2 {
 }
 
 main section .desc {
-  margin-left: calc(3 * var(--sep));
+  max-width: 74rem;
+  margin-left: 1.25rem;
+}
+
+main .role-meta {
+  color: #60d4c8;
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+main .details {
+  margin: 0 0 1rem 1.25rem;
+  list-style: disc;
+}
+
+main .details li {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+main .entry + .entry {
+  margin-top: 1.5rem;
+}
+
+main .entry h2 {
+  color: #60d4c8;
 }
 
 @media (max-width: 430px) {
