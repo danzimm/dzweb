@@ -44,7 +44,7 @@ jobs:
           PY
 
       - name: Generate site
-        run: python hpp/hpp.py --url-prefix /dzweb
+        run: python hpp/hpp.py
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
