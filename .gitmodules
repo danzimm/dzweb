@@ -1,3 +1,6 @@
 [submodule "hpp"]
 	path = hpp
 	url = https://github.com/danzimm/hpp.git
+[submodule "theme"]
+	path = theme
+	url = https://github.com/danzimm/dzweb-theme.git
