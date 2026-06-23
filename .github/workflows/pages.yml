@@ -44,7 +44,7 @@ jobs:
           PY
 
       - name: Generate site
-        run: python hpp/hpp.py
+        run: python hpp/hpp.py --in-dir theme/site --in-dir site
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
