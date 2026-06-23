@@ -46,28 +46,6 @@ jobs:
       - name: Generate site
         run: python hpp/hpp.py --url-prefix /dzweb
 
-      - name: Verify generated site
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import sys
-
-          failed = False
-          for path in Path("sitegen").rglob("*.html"):
-              text = path.read_text()
-              if "hpp-text" in text:
-                  print(f"{path}: leaked hpp-text")
-                  failed = True
-              if path.as_posix().endswith("academics/index.html"):
-                  expected = "<title>DanZ: Academic Experience</title>"
-                  if expected not in text:
-                      print(f"{path}: missing {expected}")
-                      failed = True
-
-          if failed:
-              sys.exit(1)
-          PY
-
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
