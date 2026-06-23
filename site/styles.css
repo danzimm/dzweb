@@ -308,6 +308,14 @@ main section .desc {
   margin-left: 1.25rem;
 }
 
+#about {
+  padding-top: var(--sep);
+}
+
+#about section h1 {
+  margin-top: 0;
+}
+
 main .role-meta {
   color: #60d4c8;
   font-weight: 400;
@@ -582,7 +590,7 @@ main section.academic h1 {
 
 }
 
-@media (max-width: 430px) {
+@media (max-width: 800px) {
   nav {
     top: 0;
     position: relative;
@@ -621,8 +629,17 @@ main section.academic h1 {
   }
 
   main {
-    margin-left: 1rem;
-    margin-right: 1rem;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 28rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 100%;
+  }
+
+  main section .desc {
+    margin-left: 0;
   }
 
   .academic-hero,
@@ -637,12 +654,15 @@ main section.academic h1 {
 
   main section .work-stream,
   .work-entry .desc {
-    margin-left: 1.25rem;
+    margin-left: 0;
   }
 
   .work-logo {
     margin-bottom: 1rem;
+    min-height: auto;
+    padding: 0;
     position: static;
+    justify-content: flex-start;
   }
 
   .academic-stream .research-entry {
@@ -651,23 +671,25 @@ main section.academic h1 {
   }
 
   .luc-mark {
-    max-width: none;
+    max-width: 15.5rem;
   }
 
   main section .academic-stream,
   .academic-interests .desc {
-    margin-left: 1.25rem;
+    margin-left: 0;
   }
 
   .luc-mark,
   .academic-figure {
+    margin-left: auto;
+    margin-right: auto;
     margin-bottom: 1rem;
   }
 
   .research-entry .academic-figure {
     display: block;
     height: auto;
-    max-width: none;
+    max-width: 15.5rem;
   }
 
   .research-entry .graph-figure picture,
