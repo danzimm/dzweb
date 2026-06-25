@@ -2,6 +2,15 @@
   fill: white;
 }
 
+.home-mark {
+  margin: 0;
+  padding: 0;
+  position: static;
+  background: transparent;
+  line-height: 1.05;
+  text-align: right;
+}
+
 @media (prefers-color-scheme: light) {
   .logo-white {
     fill: #383b3c;
@@ -33,22 +42,45 @@ main section h1 svg {
   height: 2.4rem;
 }
 
+.work-intro {
+  padding-top: 0;
+}
+
+.work-logo {
+  min-height: 4.75rem;
+  padding: 0.9rem 1rem;
+}
+
+.work-entry {
+  margin-top: 2.35rem;
+}
+
+.work-logo svg {
+  display: block;
+  max-width: 100%;
+}
+
+.work-entry h2 {
+  color: var(--body-color);
+  font-size: 1.12rem;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.25em;
+}
+
 #meta-logo {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
 }
 
-#meta-logo svg {
-  height: 2.5rem;
+#meta-logo picture {
+  display: block;
 }
 
-#meta-logo .meta-wordmark {
-  color: #0081fb;
-  font-size: 1.96rem;
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+#meta-logo img {
+  display: block;
+  height: 1.55rem;
+  width: auto;
 }
 
 #adyen-logo svg {
@@ -95,11 +127,109 @@ main section h1 svg {
   margin-top: 2.35rem;
 }
 
+main section:first-child.academic-intro + .academic {
+  margin-top: 1.5rem;
+}
+
+.academic-intro {
+  margin-block: 1rem;
+}
+
+.luc-mark {
+  background: transparent;
+  box-shadow: none;
+  max-width: var(--content-rail-width);
+}
+
+.luc-mark img,
+.academic-figure picture,
+.academic-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.academic-figure {
+  background: transparent;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.research-entry .academic-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 0;
+  max-width: 20rem;
+  min-height: 0;
+}
+
+.research-entry .academic-figure picture,
+.research-entry .academic-figure img {
+  max-width: 100%;
+  max-height: 10rem;
+  object-fit: contain;
+}
+
+.research-entry .graph-figure picture,
+.research-entry .graph-figure img {
+  width: auto;
+  height: 7.8rem;
+}
+
+.research-entry .interests-figure img {
+  width: 100%;
+  max-height: 9rem;
+}
+
+.academic-interests .desc {
+  border-top: 1px solid rgba(56, 59, 60, 0.12);
+  padding-top: 1.1rem;
+}
+
+main section:first-child.academic-interests .desc {
+  border-top: 0;
+  padding-top: 0;
+}
+
+main section.academic h1 {
+  color: #449f97;
+  --element-color: #449f97;
+}
+
+.academic .entry + .entry {
+  margin-top: 2.35rem;
+}
+
 .luc-mark .luc-logo-dark {
   display: none;
 }
 
 @media (prefers-color-scheme: dark) {
+  main section.academic h1 {
+    color: #48aaa1;
+    --element-color: #48aaa1;
+  }
+
+  .luc-mark {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .academic-figure {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .academic-interests .desc {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .research-entry .interests-figure img {
+    filter: invert(1);
+  }
+
   .luc-mark .luc-logo-light {
     display: none;
   }
@@ -110,6 +240,56 @@ main section h1 svg {
 }
 
 @media (max-width: 800px) {
+  .home-mark {
+    max-width: none;
+    margin-bottom: 1.35rem;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .home-break {
+    display: none;
+  }
+
+  .work-logo {
+    margin-bottom: 1rem;
+    min-height: auto;
+    padding: 0;
+  }
+
+  .work-entry {
+    margin-top: 2rem;
+  }
+
+  .luc-mark {
+    max-width: var(--content-rail-width);
+  }
+
+  .luc-mark,
+  .academic-figure {
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1rem;
+  }
+
+  .research-entry .academic-figure {
+    display: block;
+    height: auto;
+    max-width: var(--content-rail-width);
+  }
+
+  .research-entry .graph-figure picture,
+  .research-entry .graph-figure img {
+    width: 100%;
+    height: auto;
+  }
+
+  .research-entry .interests-figure img {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   main section h1 svg {
     height: 2.25rem;
   }
@@ -126,12 +306,8 @@ main section h1 svg {
     height: 2.33rem;
   }
 
-  #meta-logo svg {
-    height: 2.15rem;
-  }
-
-  #meta-logo .meta-wordmark {
-    font-size: 1.84rem;
+  #meta-logo img {
+    height: 1.45rem;
   }
 
   #adyen-logo svg {
@@ -152,5 +328,11 @@ main section h1 svg {
 
   #google-logo svg {
     height: 1.38rem;
+  }
+}
+
+@media (min-width: 801px) {
+  .home-mark {
+    margin-top: 1.5rem;
   }
 }
