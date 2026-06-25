@@ -127,10 +127,6 @@ main section h1 svg {
   margin-top: 2.35rem;
 }
 
-main section:first-child.academic-intro + .academic {
-  margin-top: 1.5rem;
-}
-
 .academic-intro {
   margin-block: 1rem;
 }
