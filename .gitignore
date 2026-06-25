@@ -5,3 +5,4 @@ sitegen/
 scripts/
 ingest/
 tmp/
+resp*
