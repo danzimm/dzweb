@@ -4,3 +4,6 @@
 [submodule "theme"]
 	path = theme
 	url = https://github.com/danzimm/dzweb-theme.git
+[submodule "scripts"]
+	path = scripts
+	url = https://github.com/danzimm/web-ai-scripts.git
